@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demos • Introduction to Probability</title>
+  <meta name="description" content="Interactive demos for the Introduction to Probability course." />
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #0f172a;
+      --muted: #475569;
+      --card: #f8fafc;
+      --accent: #0ea5e9;
+      --radius: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1020;
+        --fg: #e5e7eb;
+        --muted: #9aa4b2;
+        --card: #111827;
+        --accent: #38bdf8;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--fg);
+      background: radial-gradient(1200px 1200px at 100% -10%, rgba(56,189,248,.06), transparent 60%), var(--bg);
+      display: grid;
+      place-items: start center;
+      padding: 48px 16px;
+    }
+    .container {
+      width: 100%;
+      max-width: 760px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(24px, 3.5vw, 34px);
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: var(--radius);
+      padding: 18px;
+      backdrop-filter: blur(3px);
+    }
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .item a {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.2));
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      .item a { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); }
+    }
+    .item a:hover, .item a:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(56,189,248,0.6);
+      box-shadow: 0 6px 18px rgba(2,132,199,0.12);
+      outline: none;
+    }
+    .title {
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .title .dot {
+      width: 8px; height: 8px; border-radius: 999px; background: var(--accent);
+      box-shadow: 0 0 10px rgba(56,189,248,0.6);
+    }
+    footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <header>
+      <h1>Demos for Introduction to Probability</h1>
+      <p class="subtitle">Interactive visualizations used in the course</p>
+    </header>
+
+    <section class="card" aria-labelledby="demo-list-heading">
+      <h2 id="demo-list-heading" class="sr-only" style="position:absolute;left:-9999px">Demo list</h2>
+      <ul class="list">
+        <li class="item">
+          <a href="./discrete-continuous-sample-space.html">
+            <span class="title">
+              <span class="dot" aria-hidden="true"></span>
+              Discrete vs. Continuous Sample Space
+            </span>
+          </a>
+        </li>
+        <!-- Add more demos below as new files appear next to this page:
+        <li class="item"><a href="./bayes-theorem-intuition.html"><span class="title"><span class="dot"></span> Bayes’ Theorem Intuition</span></a></li>
+        -->
+      </ul>
+    </section>
+
+    <footer>
+      <small>Hosted via GitHub Pages · <span aria-hidden="true">•</span> Keep files in <code>docs/</code> and link with relative paths.</small>
+    </footer>
+  </main>
+</body>
+</html>
