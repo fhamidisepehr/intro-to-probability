@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Making Sense of Uncertainty: Interactive Probability Theory</title>
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div id="root"></div>
+
+  <!-- React + ReactDOM (development for simplicity) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel for in-browser JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Simple emoji icons to replace lucide-react (no bundler required)
+    const Icon = ({label, children}) => (
+      <span className="inline-flex items-center justify-center w-5 h-5" title={label} aria-label={label}>
+        {children}
+      </span>
+    );
+
+    const ComprehensiveProbabilityDemo = () => {
+      const [activeSection, setActiveSection] = useState('basics');
+      const [diceResults, setDiceResults] = useState([]);
+      const [dartResults, setDartResults] = useState([]);
+      const [isRunning, setIsRunning] = useState(false);
+      const [bayesData, setBayesData] = useState({
+        priorA: 0.3,
+        likelihoodBA: 0.8,
+        likelihoodBNotA: 0.2
+      });
+
+      // Dice experiment setup (4-sided die, rolled twice)
+      const diceExperiment = {
+        name: '4-Sided Die (Rolled Twice)',
+        sampleSpace: Array.from({length: 16}, (_, i) => {
+          const x = Math.floor(i / 4) + 1;
+          const y = (i % 4) + 1;
+          return `(${x},${y})`;
+        }),
+        events: [
+          { 
+            name: 'Event A: (1,1) or (1,2)', 
+            outcomes: ['(1,1)', '(1,2)'], 
+            color: 'bg-blue-500',
+            probability: 2/16
+          },
+          { 
+            name: 'Event B: x = 1', 
+            outcomes: ['(1,1)', '(1,2)', '(1,3)', '(1,4)'], 
+            color: 'bg-red-500',
+            probability: 4/16
+          },
+          { 
+            name: 'Event C: x + y is odd', 
+            outcomes: ['(1,2)', '(1,4)', '(2,1)', '(2,3)', '(3,2)', '(3,4)', '(4,1)', '(4,3)'], 
+            color: 'bg-green-500',
+            probability: 8/16
+          },
+          { 
+            name: 'Event D: min(x,y) = 2', 
+            outcomes: ['(2,2)', '(2,3)', '(2,4)', '(3,2)', '(4,2)'], 
+            color: 'bg-purple-500',
+            probability: 5/16
+          }
+        ],
+        perform: () => {
+          const x = Math.floor(Math.random() * 4) + 1;
+          const y = Math.floor(Math.random() * 4) + 1;
+          return `(${x},${y})`;
+        }
+      };
+
+      const generateDartPoint = () => ({
+        x: Math.random(),
+        y: Math.random()
+      });
+
+      const runDiceExperiment = async (count = 100) => {
+        setIsRunning(true);
+        for (let i = 0; i < count; i++) {
+          const result = diceExperiment.perform();
+          setDiceResults(prev => [...prev, result]);
+          if (i % 10 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+        setIsRunning(false);
+      };
+
+      const runDartExperiment = async (count = 1000) => {
+        setIsRunning(true);
+        for (let i = 0; i < count; i++) {
+          const point = generateDartPoint();
+          setDartResults(prev => [...prev, point]);
+          if (i % 50 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 30));
+          }
+        }
+        setIsRunning(false);
+      };
+
+      const clearResults = () => {
+        setDiceResults([]);
+        setDartResults([]);
+      };
+
+      const getEventCount = (event) => {
+        return diceResults.filter(r => event.outcomes.includes(r)).length;
+      };
+
+      const calculateConditionalProbability = (eventA, eventB) => {
+        const aAndB = diceResults.filter(r => 
+          eventA.outcomes.includes(r) && eventB.outcomes.includes(r)
+        ).length;
+        const bCount = getEventCount(eventB);
+        return bCount > 0 ? aAndB / bCount : 0;
+      };
+
+      const calculateBayesPosterior = () => {
+        const { priorA, likelihoodBA, likelihoodBNotA } = bayesData;
+        const evidence = likelihoodBA * priorA + likelihoodBNotA * (1 - priorA);
+        return evidence > 0 ? (likelihoodBA * priorA) / evidence : 0;
+      };
+
+      const DiceVisualization = () => (
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl font-bold mb-4">Discrete Sample Space: 4-Sided Die Experiment</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 className="font-semibold mb-2">Sample Space (16 outcomes)</h4>
+              <div className="grid grid-cols-4 gap-1 text-xs">
+                {diceExperiment.sampleSpace.map((outcome, i) => (
+                  <div key={i} className="bg-gray-100 p-2 text-center rounded border">
+                    {outcome}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-2">Defined Events</h4>
+              <div className="space-y-2">
+                {diceExperiment.events.map((event, i) => (
+                  <div key={i} className={`p-2 rounded text-white text-sm ${event.color}`}>
+                    <div className="font-medium">{event.name}</div>
+                    <div className="text-xs opacity-90">
+                      P = {event.probability.toFixed(3)} | Outcomes: {event.outcomes.length}
+                    </div>
+                    {diceResults.length > 0 && (
+                      <div className="text-xs mt-1">
+                        Observed: {getEventCount(event)}/{diceResults.length} = {
+                          (getEventCount(event) / diceResults.length).toFixed(3)
+                        }
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4 mb-4">
+            <button
+              onClick={() => runDiceExperiment(100)}
+              disabled={isRunning}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+            >
+              <Icon label="Run">▶️</Icon>
+              Run 100 Experiments
+            </button>
+            <button
+              onClick={clearResults}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 flex items-center gap-2"
+            >
+              <Icon label="Clear">♻️</Icon>
+              Clear Results
+            </button>
+          </div>
+
+          {diceResults.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-semibold mb-2">Conditional Probability Examples</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="bg-gray-50 p-3 rounded">
+                  <strong>P(A|B)</strong>: P((1,1) or (1,2) | x=1)<br/>
+                  Observed: {calculateConditionalProbability(diceExperiment.events[0], diceExperiment.events[1]).toFixed(3)}<br/>
+                  Theoretical: 0.500
+                </div>
+                <div className="bg-gray-50 p-3 rounded">
+                  <strong>P(C|B)</strong>: P(x+y odd | x=1)<br/>
+                  Observed: {calculateConditionalProbability(diceExperiment.events[2], diceExperiment.events[1]).toFixed(3)}<br/>
+                  Theoretical: 0.500
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      const DartVisualization = () => {
+        const triangleCount = dartResults.filter(p => p.x + p.y <= 0.5).length;
+        const complementCount = dartResults.filter(p => p.x - p.y <= 0.5).length;
+        const total = Math.max(dartResults.length, 1);
+        const triangleArea = triangleCount / total;
+        const complementArea = complementCount / total;
+
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-bold mb-4">Continuous Sample Space: Dart Throwing</h3>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold mb-2">Unit Square [0,1]²</h4>
+                <svg width="300" height="300" className="border">
+                  {/* Grid */}
+                  <defs>
+                    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#e0e0e0" strokeWidth="1"/>
+                    </pattern>
+                  </defs>
+                  <rect width="300" height="300" fill="url(#grid)" />
+
+                  {/* Triangle for x + y ≤ 0.5 */}
+                  <polygon 
+                    points="0,300 150,150 0,150" 
+                    fill="rgba(59, 130, 246, 0.3)" 
+                    stroke="blue" 
+                    strokeWidth="2"
+                  />
+
+                  {/* Area for x - y ≤ 0.5 */}
+                  <polygon 
+                    points="0,0 300,0 300,150 150,300 0,300" 
+                    fill="rgba(16, 185, 129, 0.2)" 
+                    stroke="green" 
+                    strokeWidth="2"
+                  />
+
+                  {/* Dart points */}
+                  {dartResults.slice(-500).map((point, i) => (
+                    <circle
+                      key={i}
+                      cx={point.x * 300}
+                      cy={(1 - point.y) * 300}
+                      r="1.5"
+                      fill="red"
+                      opacity="0.6"
+                    />
+                  ))}
+
+                  {/* Axes labels */}
+                  <text x="150" y="295" textAnchor="middle" fontSize="12">x</text>
+                  <text x="5" y="150" textAnchor="middle" fontSize="12">y</text>
+                </svg>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Event Areas & Probabilities</h4>
+                  <div className="space-y-3">
+                    <div className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
+                      <strong>Event: x + y ≤ 0.5</strong><br/>
+                      Theoretical area: 1/8 = 0.125<br/>
+                      {dartResults.length > 0 && (
+                        <>Observed: {triangleArea.toFixed(3)}</>
+                      )}
+                    </div>
+                    <div className="bg-green-50 p-3 rounded border-l-4 border-green-500">
+                      <strong>Event: x - y ≤ 0.5</strong><br/>
+                      Theoretical area: 7/8 = 0.875<br/>
+                      {dartResults.length > 0 && (
+                        <>Observed: {complementArea.toFixed(3)}</>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => runDartExperiment(1000)}
+                  disabled={isRunning}
+                  className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Icon label="Throw">🎯</Icon>
+                  Throw 1000 Darts
+                </button>
+
+                {dartResults.length > 0 && (
+                  <div className="bg-gray-50 p-3 rounded text-sm">
+                    <strong>Results Summary:</strong><br/>
+                    Total darts: {dartResults.length}<br/>
+                    Points in triangle: {triangleCount}<br/>
+                    Points in larger region: {complementCount}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const BayesDemo = () => (
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl font-bold mb-4">Bayes' Theorem Interactive Demo</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-3">Input Parameters</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">P(A) - Prior probability</label>
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="0.99"
+                    step="0.01"
+                    value={bayesData.priorA}
+                    onChange={(e) => setBayesData({...bayesData, priorA: parseFloat(e.target.value)})}
+                    className="w-full"
+                  />
+                  <span className="text-sm text-gray-600">{bayesData.priorA.toFixed(2)}</span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">P(B|A) - Likelihood</label>
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="0.99"
+                    step="0.01"
+                    value={bayesData.likelihoodBA}
+                    onChange={(e) => setBayesData({...bayesData, likelihoodBA: parseFloat(e.target.value)})}
+                    className="w-full"
+                  />
+                  <span className="text-sm text-gray-600">{bayesData.likelihoodBA.toFixed(2)}</span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">P(B|¬A) - Alternative likelihood</label>
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="0.99"
+                    step="0.01"
+                    value={bayesData.likelihoodBNotA}
+                    onChange={(e) => setBayesData({...bayesData, likelihoodBNotA: parseFloat(e.target.value)})}
+                    className="w-full"
+                  />
+                  <span className="text-sm text-gray-600">{bayesData.likelihoodBNotA.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Bayes' Calculation</h4>
+              <div className="bg-gray-50 p-4 rounded space-y-2 text-sm font-mono">
+                <div>P(A|B) = P(B|A) × P(A) / P(B)</div>
+                <hr/>
+                <div>P(B) = P(B|A)×P(A) + P(B|¬A)×P(¬A)</div>
+                <div>P(B) = {bayesData.likelihoodBA.toFixed(2)} × {bayesData.priorA.toFixed(2)} + {bayesData.likelihoodBNotA.toFixed(2)} × {(1-bayesData.priorA).toFixed(2)}</div>
+                <div>P(B) = {(bayesData.likelihoodBA * bayesData.priorA + bayesData.likelihoodBNotA * (1-bayesData.priorA)).toFixed(3)}</div>
+                <hr/>
+                <div className="text-lg font-bold text-blue-600">
+                  P(A|B) = {calculateBayesPosterior().toFixed(3)}
+                </div>
+              </div>
+
+              <div className="mt-4 p-3 bg-blue-50 rounded text-sm">
+                <strong>Interpretation:</strong><br/>
+                The posterior probability P(A|B) represents our updated belief about event A after observing evidence B.
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const ConceptSummary = () => (
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl font-bold mb-4">Key Concepts Summary</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-3 text-blue-600">Probability Axioms</h4>
+              <div className="space-y-2 text-sm">
+                <div className="bg-blue-50 p-2 rounded">
+                  <strong>Non-negativity:</strong> P(A) ≥ 0
+                </div>
+                <div className="bg-blue-50 p-2 rounded">
+                  <strong>Normalization:</strong> P(Ω) = 1
+                </div>
+                <div className="bg-blue-50 p-2 rounded">
+                  <strong>Additivity:</strong> If A∩B=∅, then P(A∪B)=P(A)+P(B)
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 text-green-600">Key Formulas</h4>
+              <div className="space-y-2 text-sm">
+                <div className="bg-green-50 p-2 rounded">
+                  <strong>Conditional:</strong> P(A|B) = P(A∩B)/P(B)
+                </div>
+                <div className="bg-green-50 p-2 rounded">
+                  <strong>Independence:</strong> P(A∩B) = P(A)×P(B)
+                </div>
+                <div className="bg-green-50 p-2 rounded">
+                  <strong>Bayes:</strong> P(A|B) = P(B|A)×P(A)/P(B)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-yellow-50 rounded border-l-4 border-yellow-400">
+            <h4 className="font-semibold mb-2">Problem-Solving Strategy</h4>
+            <ol className="list-decimal list-inside space-y-1 text-sm">
+              <li><strong>Define sample space:</strong> Visualize and identify all possible outcomes</li>
+              <li><strong>Apply probability law:</strong> Choose appropriate model (uniform, geometric, etc.)</li>
+              <li><strong>Identify events:</strong> Translate problem into mathematical sets</li>
+              <li><strong>Calculate:</strong> Use axioms and formulas to find probabilities</li>
+            </ol>
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Making Sense of Uncertainty: Interactive Probability Theory
+            </h1>
+            <p className="text-xl text-gray-600">
+              A comprehensive demonstration of probabilistic models and concepts
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-center mb-8">
+            <div className="flex bg-white rounded-lg p-1 shadow-lg">
+              {[
+                { key: 'basics', label: 'Sample Spaces & Events', icon: '📘' },
+                { key: 'discrete', label: 'Discrete Models', icon: '🧮' },
+                { key: 'continuous', label: 'Continuous Models', icon: '🎯' },
+                { key: 'bayes', label: 'Bayes Theorem', icon: '➡️' }
+              ].map(({ key, label, icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveSection(key)}
+                  className={
+                    `flex items-center gap-2 px-4 py-2 rounded-md transition-colors ` +
+                    (activeSection === key
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100')
+                  }
+                >
+                  <Icon label={label}>{icon}</Icon>
+                  <span className="hidden md:inline">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content Sections */}
+          <div className="space-y-6">
+            {activeSection === 'basics' && <ConceptSummary />}
+            {activeSection === 'discrete' && <DiceVisualization />}
+            {activeSection === 'continuous' && <DartVisualization />}
+            {activeSection === 'bayes' && <BayesDemo />}
+          </div>
+
+          {/* Interactive Questions Section */}
+          <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-xl font-bold mb-4">Thought-Provoking Questions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-red-50 p-4 rounded border-l-4 border-red-400">
+                <h4 className="font-semibold text-red-700 mb-2">Counterfactual Thinking</h4>
+                <p className="text-sm">If we changed the sample space granularity (e.g., conditioning on weather during a coin flip), how would our probability calculations change?</p>
+              </div>
+              <div className="bg-purple-50 p-4 rounded border-l-4 border-purple-400">
+                <h4 className="font-semibold text-purple-700 mb-2">Independence Paradox</h4>
+                <p className="text-sm">Can two events be both disjoint and independent? What does this tell us about the relationship between these concepts?</p>
+              </div>
+              <div className="bg-green-50 p-4 rounded border-l-4 border-green-400">
+                <h4 className="font-semibold text-green-700 mb-2">Continuous Intuition</h4>
+                <p className="text-sm">Why is the probability of any single point zero in continuous spaces, yet we can still make meaningful probability statements?</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded border-l-4 border-blue-400">
+                <h4 className="font-semibold text-blue-700 mb-2">Bayes in Practice</h4>
+                <p className="text-sm">How does Bayes' theorem help us update medical diagnoses, spam filtering, or machine learning predictions?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ComprehensiveProbabilityDemo />);
+  </script>
+</body>
+</html>
