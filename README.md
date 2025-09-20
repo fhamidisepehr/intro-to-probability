@@ -1,0 +1,1 @@
+"Making Sense of Uncertainty: An Introduction to Probability Theory" - This is an interactive set of demos for discrete and continuous sample spaces, events, conditional probability, independence, and Bayes theorem.
