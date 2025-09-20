@@ -36,6 +36,8 @@
   #die-event-desc div,#dart-event-desc div{margin:6px 0;line-height:1.25}
   /* keep Experiment boxes containing their content neatly */
   .experiment{padding:10px}
+  .experiment h3{margin:.2rem 0 .2rem}
+  .experiment p{margin:.2rem 0 .65em}
 </style>
 </head>
 <body>
@@ -367,8 +369,8 @@ It is widely used in statistics, machine learning, and engineering inference.
   <section id="die" class="tab card">
     <div class="grid grid-2">
       <div>
-        <h2>Experiment</h2>
         <div class="card experiment">
+          <h3>Experiment</h3>
           <p class="mini" style="color:#475569">Roll a 4-sided die twice. Sample space Ω has 16 equally likely outcomes: (x,y) with x,y ∈ {1,2,3,4}.</p>
           <div class="panel">
             <div class="row">
@@ -380,10 +382,6 @@ It is widely used in statistics, machine learning, and engineering inference.
           <div style="margin-top: 10px;"></div>
           <div class="grid">
             <div class="card">
-              <h3>Sample Space (Ω)</h3>
-              <div id="die-space" class="mono" style="display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:6px"></div>
-            </div>
-            <div class="card">
               <h3>Tree Representation (two stages)</h3>
               <div style="margin-top: 20px;"></div>
               <div class="mini" style="text-align:right; margin-top:-6px; margin-bottom:6px;">
@@ -392,6 +390,10 @@ It is widely used in statistics, machine learning, and engineering inference.
                 <span class="pill" style="background: #86efac; border-color: #4ade80;">Event A∩B</span>
               </div>
               <div class="svgwrap"><svg id="die-tree" width="520" height="360"></svg></div>
+            </div>
+            <div class="card">
+              <h3>Sample Space (Ω)</h3>
+              <div id="die-space" class="mono" style="display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));gap:6px"></div>
             </div>
           </div>
         </div>
@@ -403,12 +405,10 @@ It is widely used in statistics, machine learning, and engineering inference.
       </div>
 
       <div>
-        <h2>Calculations & Venn</h2>
         <div class="card">
-          <h3>Probabilities (Discrete Uniform Law)</h3>
-          <div id="die-stats" class="mono mini"></div>
-          <div class="hr"></div>
-          <div id="die-rel" class="mini"></div>
+          <h3>Sample Space Grid</h3>
+          <div style="margin-top: 20px;"></div>
+          <div class="svgwrap"><svg id="die-grid" width="460" height="320" style="border:1px solid #e5e7eb; background:#ffffff"></svg></div>
         </div>
         <div style="margin-top: 10px;"></div>
         <div class="card">
@@ -418,12 +418,14 @@ It is widely used in statistics, machine learning, and engineering inference.
             <span class="pill" style="background: #93c5fd; border-color: #60a5fa;">Event A</span>
             <span class="pill" style="background: #fda4af; border-color: #f87171;">Event B</span>
           </div>
-          <div class="svgwrap"><svg id="die-venn" width="460" height="320"></svg>
-    <div class="viz-block">
-      <h4 style="margin:.3rem 0 .3rem; color:#334155;">Sample Space Grid</h4>
-      <svg id="die-grid" width="460" height="320" style="border:1px solid #e5e7eb; background:#ffffff"></svg>
-    </div>
-    </div>
+          <div class="svgwrap"><svg id="die-venn" width="460" height="320"></svg></div>
+        </div>
+        <div style="margin-top: 10px;"></div>
+        <div class="card">
+          <h3>Probabilities (Discrete Uniform Law)</h3>
+          <div id="die-stats" class="mono mini"></div>
+          <div class="hr"></div>
+          <div id="die-rel" class="mini"></div>
         </div>
       </div>
     </div>
@@ -714,8 +716,8 @@ function renderDieGrid(){
       const cx = boxX + (i-1)*boxW/GRID;
       const cy = boxY + (GRID-j)*boxH/GRID; // y inverted so j=1 at bottom
       const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-      r.setAttribute('x',cx+2); r.setAttribute('y',cy+2);
-      r.setAttribute('width',boxW/GRID-4); r.setAttribute('height',boxH/GRID-4);
+      r.setAttribute('x',cx+6); r.setAttribute('y',cy+6);
+      r.setAttribute('width',boxW/GRID-12); r.setAttribute('height',boxH/GRID-12);
       r.setAttribute('rx',4); r.setAttribute('ry',4);
       r.setAttribute('fill', cellFill(i,j));
       r.setAttribute('stroke','#9ca3af'); r.setAttribute('stroke-width','0.8');
