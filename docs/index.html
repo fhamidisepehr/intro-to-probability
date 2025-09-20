@@ -101,8 +101,8 @@
 
   &lt;h2&gt;1. Introduction and Motivation&lt;/h2&gt;
   &lt;p&gt;
-    Everyday life, as well as almost every career field (modern engineering, data analysis, healthcare, retail, store management, factory jobs, etc.) routinely involve uncertainty, variability, and partial observations.
-    Probability provides the language and tools for reasoning under such uncertainty so that we can make educated decsions, design reliable systems, quantify risks,
+    Everyday life and nearly all professions (from finance and engineering to healthcare and retail) involve uncertainty, variability, and incomplete information.
+    Probability provides the language and tools for reasoning under such uncertainty so that we can make educated decisions, design reliable systems, quantify risks,
     and update beliefs when information arrives. In this introductory module, we establish the foundations of probabilistic modeling and essential components (such as conditional probability, independence, etc.) that power later topics (such as statistical inference).
   &lt;/p&gt;
 
@@ -133,7 +133,7 @@
     granularity.&lt;/p&gt;
 
   &lt;p&gt;&lt;strong&gt;Examples.&lt;/strong&gt; For a single coin toss, a minimal description is
-    &lt;span class=&quot;math&quot;&gt;$\,\Omega=\{H,T\}\,$&lt;/span&gt;, which meets the above requiremets. If the
+    &lt;span class=&quot;math&quot;&gt;$\,\Omega=\{H,T\}\,$&lt;/span&gt;, which meets the above requirements. If the
     phenomenon of interest also depends on weather, one may refine the space to encode that context:
     &lt;span class=&quot;math&quot;&gt;$\,\Omega=\{(H,\mathrm{rain}),(H,\mathrm{not\mbox{-}rain}),(T,\mathrm{rain}),(T,\mathrm{not\mbox{-}rain})\}\,$&lt;/span&gt; or  &lt;span class=&quot;math&quot;&gt;$\,\Omega=\{H,(T,\mathrm{rain}),(T,\mathrm{not\mbox{-}rain})\}\,$&lt;/span&gt;.
     While these choices are legitimate, the refined space should only be
@@ -178,7 +178,7 @@ certain properties that we call the axioms of probability:
   $\mathbb{P}\Big(\bigcup_{i=1}^n A_i\Big)=\sum_{i=1}^n \mathbb{P}(A_i)$.&lt;/div&gt;
   &lt;div class=&quot;box proof&quot;&gt;&lt;strong&gt;Proof.&lt;/strong&gt; Induct on $n$. The case $n=2$ is axiom (iii); extend by induction. $\square$&lt;/div&gt;
 
-  &lt;div class=&quot;box theorem&quot;&gt;&lt;strong&gt;Result 4.6 (Inclusion-Exclusion).&lt;/strong&gt; $\mathbb{P}(A\cup B)=\mathbb{P}(A)+\mathbb{P}(B)-A\cap B$.&lt;/div&gt;
+  &lt;div class=&quot;box theorem&quot;&gt;&lt;strong&gt;Result 4.6 (Inclusion-Exclusion).&lt;/strong&gt; $\mathbb{P}(A\cup B)=\mathbb{P}(A)+\mathbb{P}(B)-\mathbb{P}(A\cap B)$.&lt;/div&gt;
   &lt;div class=&quot;box proof&quot;&gt;&lt;strong&gt;Proof.&lt;/strong&gt;
   Write the disjoint pieces
   $A\setminus B:=A\cap B^{c}$ and $B\setminus A:=B\cap A^{c}$.
@@ -201,7 +201,7 @@ certain properties that we call the axioms of probability:
   (pairwise disjoint and $\bigcup_i B_i=\Omega$), then for any event $A$,
   $$\mathbb{P}(A)=\sum_{i=1}^n \mathbb{P}(A\cap B_i)\,.$$
   &lt;/div&gt;
-  &lt;div class=&quot;box proof&quot;&gt;&lt;strong&gt;Proof.&lt;/strong&gt; Since $A=A\cap\Omega=A\cap\big(\cup_i B_i\big)=\cup_i (A\cap B_i)$ with disjoint union, apply Result 4.4. $\square$&lt;/div&gt;
+  &lt;div class=&quot;box proof&quot;&gt;&lt;strong&gt;Proof.&lt;/strong&gt; Since $A=A\cap\Omega=A\cap\big(\cup_i B_i\big)=\cup_i (A\cap B_i)$ with disjoint union, apply Result 4.5. $\square$&lt;/div&gt;
 
   &lt;h2&gt;7. Discrete Uniform Law&lt;/h2&gt;
   &lt;p&gt;
@@ -291,15 +291,15 @@ Problems of the discrete uniform law reduce to counting: How many elements are t
 
   &lt;h2&gt;9. Examples (Setting and Interactive Model)&lt;/h2&gt;
   &lt;p&gt;
-    For exploration, use the other tabs on the right, where you can interacively play with and learn from insightful examples.
+    For exploration, use the other tabs on the right, where you can interactively play with and learn from insightful examples.
   &lt;/p&gt;
 
   &lt;h2&gt;10. Conditional Events and Probabilities&lt;/h2&gt;
   &lt;p&gt;
-    How does the probability of an event change if we have extra information on some toher events? Given an event $B$ with $\mathbb{P}(B)&gt;0$, the &lt;em&gt;conditional probability&lt;/em&gt; of $A$ given $B$ is
+    How does the probability of an event change if we have extra information on some other events? Given an event $B$ with $\mathbb{P}(B)&gt;0$, the &lt;em&gt;conditional probability&lt;/em&gt; of $A$ given $B$ is
     $$\mathbb{P}(A\mid B)=\frac{\mathbb{P}(A\cap B)}{\mathbb{P}(B)}.$$
     This represents the probability of $A$ after restricting attention to outcomes in $B$ (somewhat reducing the sample space).
-    Equivalently, one can write $\mathbb{P}(A\cap B)=\mathbb{P}(B)\,\mathbb{P}(A\mid B)$, which is known as the &lt;strong&gt;Multiplication Rule&lt;/strong&gt; and has various applications in probability, statitics theory, and inference.
+    Equivalently, one can write $\mathbb{P}(A\cap B)=\mathbb{P}(B)\,\mathbb{P}(A\mid B)$, which is known as the &lt;strong&gt;Multiplication Rule&lt;/strong&gt; and has various applications in probability, statistics theory, and inference.
   &lt;/p&gt;
 
   &lt;h2&gt;11. Independence vs. Disjointness&lt;/h2&gt;
