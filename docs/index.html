@@ -437,7 +437,15 @@ It is widely used in statistics, machine learning, and engineering inference.
       <div>
         <h2>Experiment</h2>
         <div class="card experiment">
-          <p class="mini" style="color:#475569; text-align: justify;">Throw darts uniformly in the unit square [0,1]². The sample space (infinite) is set of x-y pairs that lie between 0 and 1. Outcome is a point (x,y)∈[0,1]². Events are measurable regions. Probabilities correspond to areas. Probability law: Assume the 'equal areas = equal probabilities' convention.</p>
+          <p class="mini" style="color:#475569; text-align: justify; margin:0 0 0 0;">
+            Throw darts uniformly in the unit square [0,1]².
+          </p>
+          <ul class="mini" style="color:#475569; text-align: justify; margin:0; padding-left:1.2rem;">
+            <li>The sample space is set of x–y pairs that lie between 0 and 1 (continuous & infinite). Outcome is a point (x,y) ∈ [0,1]².</li>
+            <li>Events are measurable regions.</li>
+            <li>Probabilities correspond to areas.</li>
+            <li>Probability law: assume “equal areas = equal probabilities” convention.</li>
+          </ul>
           <div class="panel">
             <div class="row">
               <label>Event A: <select id="dart-event-a"></select></label>
@@ -530,7 +538,6 @@ It is widely used in statistics, machine learning, and engineering inference.
         <div class="card">
           <h3>Visualizations</h3>
           <svg id="bayes-bars" width="520" height="220"></svg>
-          <p class="muted mini">Bars show prior P(A), evidence P(B), and posterior P(A|B). Likelihoods affect evidence height.</p>
         </div>
       </div>
     </div>
@@ -539,7 +546,7 @@ It is widely used in statistics, machine learning, and engineering inference.
     <div class="card" style="margin-top:10px">
       <h3>Notes</h3>
       <div class="mini">
-        <ul style="margin:0 0 0 1rem; padding:0;"><li>P(A|B): Posterior (updated belief in A after observing evidence B).</li><li>P(B) is usually calculated using the law of total probability.</li><li>Posterior increases with larger P(B|A) and larger prior P(A).</li><li>High false-positive rate P(B|A<sup>c</sup>) inflates evidence and can reduce P(A|B).</li><li>Small base rates (rare conditions) can keep P(A|B) modest even with accurate tests.</li></ul>
+        <ul style="margin:0 0 0 1rem; padding:0;"><li>P(A): Prior.</li><li>P(B): Evidence; usually calculated using the law of total probability.</li><li>P(A|B): Posterior (updated belief in A after observing evidence B).</li><li>Posterior increases with larger P(B|A) and larger prior P(A).</li><li>High false-positive rate P(B|A<sup>c</sup>) inflates evidence and can reduce P(A|B).</li><li>Small base rates (rare conditions) can keep P(A|B) modest even with accurate tests.</li></ul>
       </div>
     </div>
 
@@ -834,13 +841,13 @@ const dartEvents = {
   E1:{ name:"Event 1: x + y ≤ 0.5", contains:p=>p.x+p.y<=0.5, area:0.125 },
   E2:{ name:"Event 2: x − y ≤ 0.5", contains:p=>(p.x-p.y)<=0.5, area:0.875 },
   E3:{ name:"Event 3: y ≤ x", contains:p=>p.y<=p.x, area:0.5 },
-  E4:{ name:"Event 4: x² + y² ≤ 1 (quarter circle)", contains:p=>(p.x*p.x+p.y*p.y)<=1.0, area:Math.PI/4 },
+  E4:{ name:"Event 4: x² + y² ≤ 1", contains:p=>(p.x*p.x+p.y*p.y)<=1.0, area:Math.PI/4 },
   E5:{ name:"Event 5: 0.25 ≤ x ≤ 0.75", contains:p=>(p.x>=0.25&&p.x<=0.75), area:0.5 },
   E6:{ name:"Event 6: 0.2 ≤ y ≤ 0.8", contains:p=>(p.y>=0.2&&p.y<=0.8), area:0.6 },
   E7:{ name:"Event 7: x ≤ 0.5", contains:p=>p.x<=0.5, area:0.5 },
   E8:{ name:"Event 8: y ≤ 0.5", contains:p=>p.y<=0.5, area:0.5 },
   E9:{ name:"Event 9: |x − y| ≤ 0.2", contains:p=>Math.abs(p.x-p.y)<=0.2, area:0.36 },
-  E10:{name:"Event 10: x² + y² ≤ 0.5 (quarter circle)", contains:p=>(p.x*p.x+p.y*p.y)<=0.5, area:Math.PI/8 }
+  E10:{name:"Event 10: x² + y² ≤ 0.5", contains:p=>(p.x*p.x+p.y*p.y)<=0.5, area:Math.PI/8 }
 };
 function populateDartSelectors(){
   const selA = byId('dart-event-a'), selB = byId('dart-event-b');
