@@ -373,12 +373,14 @@ It is widely used in statistics, machine learning, and engineering inference.
           <h3>Experiment</h3>
           <p class="mini" style="color:#475569">Roll a 4-sided die twice. Sample space Ω has 16 equally likely outcomes: (x,y) with x,y ∈ {1,2,3,4}.</p>
           <div class="panel">
-            <div class="row">
-              <label>Event A: <select id="die-event-a"></select></label>
-              <label style="margin-top: 8px;">Event B: <select id="die-event-b"></select></label>
-              <label class="row" style="gap:6px;"><input type="checkbox" id="die-show-only"> Show only selected leaves</label>
-            </div>
+          <div class="row" style="display:flex; flex-direction:column; row-gap:2px;">
+            <label>Event A: <select id="die-event-a"></select></label>
+            <label style="margin-top:0;">Event B: <select id="die-event-b"></select></label>
+            <label style="display:flex; align-items:center; gap:6px; margin:0;">
+              <input type="checkbox" id="die-show-only"> Show only selected leaves
+            </label>
           </div>
+        </div>
           <div style="margin-top: 10px;"></div>
           <div class="grid">
             <div class="card">
@@ -447,9 +449,9 @@ It is widely used in statistics, machine learning, and engineering inference.
             <li>Probability law: assume “equal areas = equal probabilities” convention.</li>
           </ul>
           <div class="panel">
-            <div class="row">
+            <div class="row" style="display:flex; flex-direction:column; row-gap:2px;">
               <label>Event A: <select id="dart-event-a"></select></label>
-              <label style="margin-top: 8px;">Event B: <select id="dart-event-b"></select></label>
+              <label style="margin-top:0;">Event B: <select id="dart-event-b"></select></label>
             </div>
             <div style="margin-top: 10px;"></div>
             <div class="mini"><span class="pill" style="background: #93c5fd; border-color: #60a5fa;">Event A</span><span class="pill" style="background: #fda4af; border-color: #f87171;">Event B</span></div>
@@ -775,6 +777,8 @@ function updateDie(){
   const A = (dieEvents[Akey]?.outcomes) || [];
   const B = (dieEvents[Bkey]?.outcomes) || [];
   const pA=probOf(A), pB=probOf(B), AB=inter(A,B), pAB=probOf(AB), pAorB=probOf(union(A,B)), pAgB=B.length?AB.length/B.length:0;
+   // NEW: compute P(B|A) via Bayes-form (and guard against division by zero)
+  const pBgA = (pA > 0 && pB > 0) ? (pAgB * pB / pA) : (pA > 0 ? (pAB / pA) : 0);
   setText('die-stats', [
     '|Ω| = 16 (uniform, probability of each outcome = 1/16)',
     `P(A) = |A|/16 = ${A.length}/16 = ${fmtProb(pA)}`,
@@ -782,7 +786,8 @@ function updateDie(){
     `P(A).P(B) = ${fmtProb(pA*pB)}`,
     `P(A∩B) = |A∩B|/16 = ${AB.length}/16 = ${fmtProb(pAB)}`,
     `P(A∪B) = P(A)+P(B)-P(A∩B) = ${fmtProb(pAorB)}`,
-    `P(A|B) = |A∩B|/|B| = ${B.length ? `${AB.length}/${B.length}` : '—'} = ${fmtProb(pAgB)}`
+    `P(A|B) = |A∩B|/|B| = ${B.length ? `${AB.length}/${B.length}` : '—'} = ${fmtProb(pAgB)}`,
+    `P(B|A) = P(A|B)·P(B)/P(A) = ${fmtProb(pBgA)}`
   ].join('<br><br>'));
   const disjoint = AB.length===0, AsubsetB=subset(A,B), BsubsetA=subset(B,A), indep=Math.abs(pAB-pA*pB)<1e-12;
   setText('die-rel', `
@@ -901,10 +906,12 @@ function analyticIntersectionArea(keyA,keyB){
   if(A==='E3'&&B==='E5') return (0.75*0.75 - 0.25*0.25)/2;
   if(A==='E1'&&B==='E5') return 0.03125;
   if(A==='E1'&&B==='E6') return 0.045;
+    // NEW: symmetric band |x−y|≤0.2 (area 0.36) cut by y≤x ⇒ half the band
+  if(A==='E3'&&B==='E9') return 0.36/2;
   return null;
 }
 function numericIntersectionArea(keyA,keyB){
-  const NA=280; let cnt=0;
+  const NA=600; let cnt=0;
   for(let i=0;i<NA;i++){ const x=(i+0.5)/NA;
     for(let j=0;j<NA;j++){ const y=(j+0.5)/NA;
       if(dartEvents[keyA].contains({x,y}) && dartEvents[keyB].contains({x,y})) cnt++;
@@ -921,7 +928,7 @@ function subsetNumeric(keyA,keyB){
   if(!keyA && keyB) return true;        // ∅ ⊆ B
   if(keyA && !keyB) return false;       // nonempty ⊄ ∅
   if(!keyA && !keyB) return true;       // ∅ ⊆ ∅
-  const NA=160;
+  const NA=600;
   for(let i=0;i<NA;i++){
     const x=(i+0.5)/NA;
     for(let j=0;j<NA;j++){
@@ -965,14 +972,17 @@ function updateDartStats(){
   const pA_th=Aev?Aev.area:0, pB_th=Bev?Bev.area:0, pAB_th=(Aev&&Bev)?theoreticalIntersection(Akey,Bkey):0;
   const pAorB_th = pA_th + pB_th - pAB_th;
   const pAgB_th = pB_th>0 ? (pAB_th/pB_th) : 0;
-  const disjoint = pAB_th<1e-6, indep=Math.abs(pAB_th-pA_th*pB_th)<1e-3, Asub=subsetNumeric(Akey,Bkey), Bsub=subsetNumeric(Bkey,Akey);
+  const pBgA_th = (pA_th > 0 && pB_th > 0) ? (pAgB_th * pB_th / pA_th)
+                    : (pA_th > 0 ? (pAB_th / pA_th) : 0);
+  const disjoint = pAB_th<1e-6, indep=Math.abs(pAB_th-pA_th*pB_th)<5e-3, Asub=subsetNumeric(Akey,Bkey), Bsub=subsetNumeric(Bkey,Akey);
   setText('dart-theory', [
   `P(A) = ${fmtProb(pA_th)}`,
   `P(B) = ${fmtProb(pB_th)}`,
   `P(A∩B) = ${fmtProb(pAB_th)}`,
   `P(A)·P(B) = ${fmtProb(pA_th * pB_th)}`,
   `P(A∪B) = P(A)+P(B)-P(A∩B) = ${fmtProb(pAorB_th)}`,
-  `P(A|B) = P(A∩B)/P(B) = ${pB_th>0 ? fmtProb(pAgB_th) : '—'}`
+  `P(A|B) = P(A∩B)/P(B) = ${pB_th>0 ? fmtProb(pAgB_th) : '—'}`,
+  `P(B|A) = P(A|B)·P(B)/P(A) = ${ (pA_th>0 && pB_th>0) ? fmtProb(Math.min(1, pBgA_th)) : '—' }`
 ].join('<br><br>'));
   byId('dart-venn').dataset.pA=pA_th; byId('dart-venn').dataset.pB=pB_th; byId('dart-venn').dataset.pAB=pAB_th;
   setText('dart-rel-top', `
