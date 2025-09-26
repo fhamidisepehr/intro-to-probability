@@ -554,7 +554,7 @@ It is widely used in statistics, machine learning, and engineering inference.
 
     <div class="card" style="margin-top:10px">
       <h3>Example: Medical Testing</h3>
-      <p class="mini">Suppose a disease has prevalence P(A)=1%. The test has sensitivity P(B|A)=0.95 and false-positive rate P(B|A<sup>c</sup>)=0.05.</p>
+      <p class="mini">Suppose a disease has prevalence P(A)=1%. The accuracy of the test is 95% (0.95 as a probability). Since there is a 95% chance the test works correctly, if the patient has the disease, there is a 95% chance that the test will come back positive and if the patient is healthy, there is a 95% chance the test will come back negative. If a patient tested positive, would not it mean that there is a 95% chance that the patient has the disease?!! Note that the given number of 95% is for the conditional events: “if disease, then positive”, (P(B|A)=0.95) (and “if healthy, then negative”). The example asks for the probabilities for the reversed events “if positive, then disease” (similarly, “if negative, then healthy”). It is a common "misconception" thinking that the two probabilities are the same (they are not!). In this example, P(B|A<sup>c</sup>)=0.05 (“if healthy, then positive”).</p>
       <button class="btn secondary" id="ba-medical">Load Solution</button>
       <div class="mono mini" id="ba-medical-out" style="margin-top:8px"></div>
     </div>
